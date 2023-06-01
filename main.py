@@ -1,6 +1,7 @@
 import pygame
 import numpy as np
 import random
+from table import Table
 # Initialize Pygame
 pygame.init()
 
@@ -10,34 +11,27 @@ cell_size = 60
 grid_width = cell_size * grid_size  #540
 grid_height = cell_size * grid_size #540
 window_width = grid_width + 2
-window_height = grid_height + 2
+window_height = grid_height + 50
 
 # Set up the colors
 BLACK = pygame.Color(0, 0, 0)
 WHITE = pygame.Color(255, 255, 255)
 GRAY = pygame.Color(200, 200, 200)
 BLUE = pygame.Color(0, 0, 255)
-YELLOW = pygame.Color(255, 255, 0)
+YELLOW = pygame.Color(250,235,215)
+RED = pygame.Color(165,42,42)
 
 # Set up the font
 font = pygame.font.Font(None, 36)
+
 
 # Create the game window
 window = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Sudoku Game")
 
-# Create an example Sudoku grid
-grid = np.array([
-    [0, 0, 0, 0, 0, 0, 0, 9, 2],
-    [0, 9, 8, 0, 4, 2, 0, 0, 0],
-    [0, 0, 0, 0, 6, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 3, 0, 4],
-    [0, 0, 0, 2, 0, 7, 0, 0, 0],
-    [0, 4, 0, 8, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 3, 0, 0, 0],
-    [0, 0, 0, 1, 2, 0, 5, 3, 0],
-    [2, 7, 0, 0, 0, 0, 0, 0, 0]
-])
+# Create a Sudoku grid
+grid = Table(1)
+
 
 # Create a copy of the initial game grid to track highlighted numbers
 highlighted_grid = np.zeros((grid_size, grid_size), dtype=bool)
@@ -60,43 +54,24 @@ def draw_grid():
     # draw the number
     for i in range(grid_size):
         for j in range(grid_size):
-            if grid[i][j] != 0:
-                text = font.render(str(grid[i][j]), True, BLACK)
+
+            if grid.table[i][j] != 0:
+                text = font.render(str(grid.table[i][j]), True, BLACK)
                 text_rect = text.get_rect(center=((j * cell_size) + (cell_size // 2) + 1,
                                                    (i * cell_size) + (cell_size // 2) + 1))
-                if highlighted_grid[i][j]:
+                if grid.highlighted_grid[i][j]:
                     pygame.draw.rect(window, GRAY, (j * cell_size + 1, i * cell_size + 1, cell_size, cell_size))
                 window.blit(text, text_rect)
-            elif grid[i][j] == 0:
+            elif grid.table[i][j] == 0:
                 text = font.render(" ", True, BLACK)
                 text_rect = text.get_rect(center=((j * cell_size) + (cell_size // 2) + 1,
                                                   (i * cell_size) + (cell_size // 2) + 1))
-                if highlighted_grid[i][j]:
-                    pygame.draw.rect(window, GRAY, (j * cell_size + 1, i * cell_size + 1, cell_size, cell_size))
+                if grid.highlighted_grid[i][j]:
+                    pygame.draw.rect(window, YELLOW, (j * cell_size + 1, i * cell_size + 1, cell_size, cell_size))
                 window.blit(text, text_rect)
 
 
-# Function to handle events
-def handle_events():
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            quit()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            x, y = pygame.mouse.get_pos()
-            if x <= grid_width and y <= grid_height:
-                col = x // cell_size
-                row = y // cell_size
-                number = grid[row][col]
-                if number != 0:
-                    highlighted_grid.fill(False)
-                    highlighted_grid[np.where(grid == number)] = True
-                    print(highlighted_grid)
 
-                elif number == 0:
-                    highlighted_grid.fill(False)
-                    highlighted_grid[row][col] = True
-                    print(highlighted_grid)
 
 
 
@@ -106,7 +81,7 @@ def handle_events():
 # Game loop
 running = True
 while running:
-    handle_events()
+    grid.handle_events()
     draw_grid()
     pygame.display.update()
 
