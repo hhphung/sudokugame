@@ -1,14 +1,14 @@
 import pygame
 import numpy as np
-
+import random
 # Initialize Pygame
 pygame.init()
 
 # Set up the dimensions of the Sudoku grid
 grid_size = 9
 cell_size = 60
-grid_width = cell_size * grid_size
-grid_height = cell_size * grid_size
+grid_width = cell_size * grid_size  #540
+grid_height = cell_size * grid_size #540
 window_width = grid_width + 2
 window_height = grid_height + 2
 
@@ -42,10 +42,13 @@ grid = np.array([
 # Create a copy of the initial game grid to track highlighted numbers
 highlighted_grid = np.zeros((grid_size, grid_size), dtype=bool)
 
+
+
 # Function to draw the Sudoku grid
 def draw_grid():
     window.fill(WHITE)
 
+    #draw the lines
     for i in range(grid_size + 1):
         if i % 3 == 0:
             thickness = 2
@@ -54,6 +57,7 @@ def draw_grid():
         pygame.draw.line(window, BLACK, (i * cell_size + 1, 1), (i * cell_size + 1, grid_height + 1), thickness)
         pygame.draw.line(window, BLACK, (1, i * cell_size + 1), (grid_width + 1, i * cell_size + 1), thickness)
 
+    # draw the number
     for i in range(grid_size):
         for j in range(grid_size):
             if grid[i][j] != 0:
@@ -61,8 +65,16 @@ def draw_grid():
                 text_rect = text.get_rect(center=((j * cell_size) + (cell_size // 2) + 1,
                                                    (i * cell_size) + (cell_size // 2) + 1))
                 if highlighted_grid[i][j]:
-                    pygame.draw.rect(window, YELLOW, (j * cell_size + 1, i * cell_size + 1, cell_size, cell_size))
+                    pygame.draw.rect(window, GRAY, (j * cell_size + 1, i * cell_size + 1, cell_size, cell_size))
                 window.blit(text, text_rect)
+            elif grid[i][j] == 0:
+                text = font.render(" ", True, BLACK)
+                text_rect = text.get_rect(center=((j * cell_size) + (cell_size // 2) + 1,
+                                                  (i * cell_size) + (cell_size // 2) + 1))
+                if highlighted_grid[i][j]:
+                    pygame.draw.rect(window, GRAY, (j * cell_size + 1, i * cell_size + 1, cell_size, cell_size))
+                window.blit(text, text_rect)
+
 
 # Function to handle events
 def handle_events():
@@ -79,6 +91,17 @@ def handle_events():
                 if number != 0:
                     highlighted_grid.fill(False)
                     highlighted_grid[np.where(grid == number)] = True
+                    print(highlighted_grid)
+
+                elif number == 0:
+                    highlighted_grid.fill(False)
+                    highlighted_grid[row][col] = True
+                    print(highlighted_grid)
+
+
+
+
+
 
 # Game loop
 running = True
@@ -86,3 +109,6 @@ while running:
     handle_events()
     draw_grid()
     pygame.display.update()
+
+
+
