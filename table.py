@@ -15,6 +15,7 @@ class Table:
         self.wrongs_grid = np.zeros((self.grid_size, self.grid_size), dtype=bool)
         self.highlighted_grid = np.zeros((self.grid_size, self.grid_size), dtype=bool)
         self.hightlightpos = (-1,-1)
+        self.lives = 3
     def generate_sudoku_grid(self):
         grid = np.zeros((9, 9), dtype=int)
 
@@ -85,12 +86,15 @@ class Table:
                     if number != 0:
                         self.highlighted_grid.fill(False)
                         self.highlighted_grid[np.where(self.table == number)] = True
-                        self.hightlightpos = (-1,1)
-
+                        if self.wrongs_grid[row][col]:
+                            self.hightlightpos = (row, col)
                     elif number == 0:
                         self.highlighted_grid.fill(False)
                         self.highlighted_grid[row][col] = True
                         self.hightlightpos = (row, col)
+                print(self.hightlightpos)
+
+
             elif event.type == pygame.KEYDOWN and self.hightlightpos != (-1,1):
                 pos = self.hightlightpos
                 if event.key == pygame.K_1 or event.key == pygame.K_KP1:
@@ -111,20 +115,29 @@ class Table:
                     self.table[pos[0]] [pos[1]] = 8
                 elif event.key == pygame.K_9 or event.key == pygame.K_KP9:
                     self.table[pos[0]] [pos[1]] = 9
-
                 self.highlighted_grid[pos[0]][pos[1]] = False
                 self.check_number(pos[0], pos[1])
-                self.hightlightpos = (-1, -1)
+
 
 
     def check_number(self, row, col):
+        #if the number is right
         if self.table[row][col] == self.goal_table[row][col]:
             self.numbers -=1;
             self.wrongs_grid[row][col] = False
             return
+        #number is not right
         self.wrongs_grid[row][col] = True
+        self.lives -=1
 
-
+    def win(self):
+        if self.numbers <=0 :
+            return True
+        return False
+    def lose(self):
+        if self.lives <= 0:
+            return True
+        return False
 
 
 

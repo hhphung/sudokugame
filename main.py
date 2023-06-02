@@ -54,35 +54,66 @@ def draw_grid():
     # draw the number
     for i in range(grid_size):
         for j in range(grid_size):
+            string = str(grid.table[i][j])
+            text = font.render(string if grid.table[i][j]> 0 else " ", True, BLACK)
+            text_rect = text.get_rect(center=((j * cell_size) + (cell_size // 2) + 1,
+                                              (i * cell_size) + (cell_size // 2) + 1))
+
 
             if grid.table[i][j] != 0:
-                text = font.render(str(grid.table[i][j]), True, BLACK)
-                text_rect = text.get_rect(center=((j * cell_size) + (cell_size // 2) + 1,
-                                                   (i * cell_size) + (cell_size // 2) + 1))
                 if grid.highlighted_grid[i][j]:
                     pygame.draw.rect(window, GRAY, (j * cell_size + 1, i * cell_size + 1, cell_size, cell_size))
                 window.blit(text, text_rect)
+            if grid.wrongs_grid[i][j]:
+                pygame.draw.rect(window, RED, (j * cell_size + 1, i * cell_size + 1, cell_size, cell_size))
+                window.blit(text, text_rect)
             elif grid.table[i][j] == 0:
-                text = font.render(" ", True, BLACK)
-                text_rect = text.get_rect(center=((j * cell_size) + (cell_size // 2) + 1,
-                                                  (i * cell_size) + (cell_size // 2) + 1))
                 if grid.highlighted_grid[i][j]:
                     pygame.draw.rect(window, YELLOW, (j * cell_size + 1, i * cell_size + 1, cell_size, cell_size))
                 window.blit(text, text_rect)
+        # Draw the count
+        count_text = font.render("Chance: " + str(grid.lives), True, BLACK)
+        count_rect = count_text.get_rect(bottomleft=(10, window.get_height() - 10))
+        window.blit(count_text, count_rect)
 
+#draw the game windown if the player won the game
+def draw_win_window():
+    win_window_width = 200
+    win_window_height = 100
+    win_window = pygame.Surface((win_window_width, win_window_height))
+    win_window_rect = win_window.get_rect(center=(window_width // 2, window_height // 2))
+    win_window.fill(WHITE)
+    win_text = font.render("You Win!", True, BLACK)
+    win_text_rect = win_text.get_rect(center=(win_window_width // 2, win_window_height // 2))
+    win_window.blit(win_text, win_text_rect)
+    window.blit(win_window, win_window_rect)
 
-
-
-
-
-
+# draw the game windown if the player lost the game
+def draw_lost_windown():
+    lose_window_width = 200
+    lose_window_height = 100
+    lose_window = pygame.Surface((lose_window_width, lose_window_height))
+    lose_window_rect = lose_window.get_rect(center=(window_width // 2, window_height // 2))
+    lose_window.fill(WHITE)
+    lose_text = font.render("You Lost!", True, BLACK)
+    lose_text_rect = lose_text.get_rect(center=(lose_window_width // 2, lose_window_height // 2))
+    lose_window.blit(lose_text, lose_text_rect)
+    window.blit(lose_window, lose_window_rect)
 
 
 # Game loop
-running = True
-while running:
+
+game_over = False
+while True:
     grid.handle_events()
-    draw_grid()
+    if not grid.win() and not grid.lose():
+        draw_grid()
+    else:
+        draw_grid()
+        if grid.win():
+            draw_win_window()
+        elif grid.lose():
+            draw_lost_windown()
     pygame.display.update()
 
 
